@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "//EXOoNudXpMq4GdCqlJUWUiZO7FJYQdGOQvdIZlzwc=",
+  "Source": "SpotifyExtension",
+  "BasePath": "_content/SpotifyExtension",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
