@@ -1,5 +1,5 @@
 {
-  "ClientOptions": {
-    "Secret": "secret"
+  "Application": {
+    "Uri": "https://localhost:7168"
   }
 }

@@ -1,4 +1,6 @@
 using SpotifyExtension.DataItems.Config;
+using SpotifyExtension.Interfaces.Services;
+using SpotifyExtension.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +10,8 @@ builder.Configuration
 
 builder.Services.Configure<OAuthOptions>(builder.Configuration.GetSection("OAuth"));
 builder.Services.Configure<ApplicationOptions>(builder.Configuration.GetSection("Application"));
+
+builder.Services.AddTransient<IAuthorizeService, AuthorizeService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

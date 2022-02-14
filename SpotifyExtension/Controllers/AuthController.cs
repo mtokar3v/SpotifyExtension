@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using SpotifyAPI.Web;
 using SpotifyExtension.DataItems.Config;
+using SpotifyExtension.Interfaces.Services;
 
 namespace SpotifyExtension.Controllers
 {
@@ -9,37 +10,23 @@ namespace SpotifyExtension.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly ApplicationOptions _applicationOptions;
-        private readonly OAuthOptions _authOptions;
-        private (string verifier, string challenge) _authCode;
+        OAuthOptions _authOptions;
+        IAuthorizeService _authorizeService;
         public AuthController(
             IOptions<OAuthOptions> authOptions,
-            IOptions<ApplicationOptions> applicationOptions
+            IAuthorizeService authorizeService
             )
         {
             _authOptions = authOptions.Value;
-            _applicationOptions = applicationOptions.Value;
-
-            _authCode = PKCEUtil.GenerateCodes(_authOptions.AuthCode);
+            _authorizeService = authorizeService;
         }
 
         [HttpGet]
         [Route(nameof(GetAuthLink))]
         public IActionResult GetAuthLink()
         {
-            var url = $"{_applicationOptions.Uri}/api/auth/{nameof(GetCallback)}";
-            var loginRequest = new LoginRequest(
-              new Uri(url),
-              _authOptions.Client.Id,
-              LoginRequest.ResponseType.Code
-            )
-            {
-                CodeChallengeMethod = "S256",
-                CodeChallenge = _authCode.challenge,
-                Scope = new[] { Scopes.PlaylistReadPrivate, Scopes.PlaylistReadCollaborative }
-            };
-            var uri = loginRequest.ToUri();
-            return Ok(new { loginLink = uri});
+            var authLink = _authorizeService.CreateAuthLink(nameof(GetCallback), _authOptions.Client.Id);
+            return Ok(authLink);
         }
 
         [HttpGet]
@@ -48,13 +35,10 @@ namespace SpotifyExtension.Controllers
         {
             if (string.IsNullOrEmpty(code)) return BadRequest();
 
-            var initialResponse = await new OAuthClient().RequestToken(
-                    new PKCETokenRequest(_authOptions.Client.Id, code, new Uri(_applicationOptions.Uri), _authCode.verifier)
-              );
-
+            var initialResponse = await _authorizeService.GetPkceToken(nameof(GetCallback), code);
             var spotify = new SpotifyClient(initialResponse.AccessToken);
-            var albums = spotify.Albums;
-            return Ok(albums);
+
+            return Ok();
         }
     }
 }
