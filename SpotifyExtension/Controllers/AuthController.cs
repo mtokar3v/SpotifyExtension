@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using SpotifyAPI.Web;
 using SpotifyExtension.DataItems.Config;
 using SpotifyExtension.Interfaces.Services;
 
@@ -27,6 +26,7 @@ namespace SpotifyExtension.Controllers
         {
             var authLink = _authorizeService.CreateAuthLink(nameof(GetCallback), _authOptions.Client.Id);
             return Ok(authLink);
+        
         }
 
         [HttpGet]
@@ -35,8 +35,8 @@ namespace SpotifyExtension.Controllers
         {
             if (string.IsNullOrEmpty(code)) return BadRequest();
 
-            var initialResponse = await _authorizeService.GetPkceToken(nameof(GetCallback), code);
-            var spotify = new SpotifyClient(initialResponse.AccessToken);
+            var success = await _authorizeService.TryGetAccessAsync(nameof(GetCallback), code, HttpContext);
+            if (!success) return Forbid();
 
             return Ok();
         }

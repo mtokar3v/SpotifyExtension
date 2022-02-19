@@ -10,21 +10,28 @@ namespace SpotifyExtension.Services
     {
         private readonly ApplicationOptions _applicationOptions;
         private readonly OAuthOptions _oAuthOptions;
-        private readonly IWebHostEnvironment _environment;
+
+        private readonly ISessionService _sessionService;
+        private readonly ICookieService _cookieService;
+
         private readonly ILogger<AuthorizeService> _logger;
+        
         private (string verifier, string challenge) _authCode;
         public AuthorizeService(
             IOptions<OAuthOptions> authOptions,
             IOptions<ApplicationOptions> applicationOptions,
-            IWebHostEnvironment environment,
-            ILogger<AuthorizeService> logger
+            ILogger<AuthorizeService> logger,
+            ISessionService sessionService,
+            ICookieService cookieService
             )
         {
             _oAuthOptions = authOptions.Value;
             _applicationOptions = applicationOptions.Value;
-            _environment = environment;
             _authCode = PKCEUtil.GenerateCodes(_oAuthOptions.AuthCode);
             _logger = logger;
+
+            _sessionService = sessionService;
+            _cookieService = cookieService;
         }
 
         public Uri CreateAuthLink(string redirectMethod, string clientId)
@@ -41,23 +48,55 @@ namespace SpotifyExtension.Services
             return loginRequest.ToUri();
         }
 
-        public async Task<PKCETokenResponse> GetPkceToken(string redirectMethod, string code)
+        public async Task<bool> TryGetAccessAsync(string redirectMethod, string code, HttpContext context)
         {
             var redirectUri = new Uri($"{_applicationOptions.Uri}/api/auth/{redirectMethod}");
 
             try
             {
-                return await new OAuthClient().RequestToken(
+                var responce = await new OAuthClient().RequestToken(
                         new PKCETokenRequest(_oAuthOptions.Client.Id, code, redirectUri, _authCode.verifier));
+
+                _cookieService.SetRefreshToken(responce.RefreshToken, context);
+                _sessionService.SetAccessToken(responce.AccessToken, context);
+
             }
             catch (Exception ex)
             {
-                if (_environment.EnvironmentName == "Development")
+                var stage = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+                if (stage == "Development")
                     throw;
 
                 _logger.LogError(LogInfo.NewLog(ex.Message));
+                return false;
             }
-            return null!;
+            return true;
+        }
+
+        public async Task<bool> TryReloadTokenAsync(HttpContext context)
+        {
+            var refreshToken = _cookieService.GetRefreshToken(context);
+
+            if (string.IsNullOrEmpty(refreshToken)) return false;
+
+            try
+            {
+                var responce = await new OAuthClient().RequestToken(new PKCETokenRefreshRequest(_oAuthOptions.Client.Id, refreshToken));
+
+                _cookieService.SetRefreshToken(responce.RefreshToken, context);
+                _sessionService.SetAccessToken(responce.AccessToken, context);
+            }
+            catch (Exception ex)
+            {
+                var stage = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+                if (stage == "Development")
+                    throw;
+
+                _logger.LogError(LogInfo.NewLog(ex.Message));
+                return false;
+            }
+
+            return true;
         }
 
     }

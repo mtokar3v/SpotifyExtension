@@ -29,3 +29,4 @@ C:\Users\Максим\source\repos\SpotifyExtension\SpotifyExtension\obj\Debug\n
 C:\Users\Максим\source\repos\SpotifyExtension\SpotifyExtension\obj\Debug\net6.0\ref\SpotifyExtension.dll
 C:\Users\Максим\source\repos\SpotifyExtension\SpotifyExtension\obj\Debug\net6.0\SpotifyExtension.pdb
 C:\Users\Максим\source\repos\SpotifyExtension\SpotifyExtension\obj\Debug\net6.0\SpotifyExtension.genruntimeconfig.cache
+C:\Users\Максим\source\repos\SpotifyExtension\SpotifyExtension\bin\Debug\net6.0\SpotifyExtension.staticwebassets.runtime.json

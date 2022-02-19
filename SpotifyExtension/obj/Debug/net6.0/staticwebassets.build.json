@@ -1,11 +1,37 @@
 {
   "Version": 1,
-  "Hash": "//EXOoNudXpMq4GdCqlJUWUiZO7FJYQdGOQvdIZlzwc=",
+  "Hash": "ogCyWVKUTFKmeKqhpdbP14pN4ITx6glOhbBmhBc/xWA=",
   "Source": "SpotifyExtension",
   "BasePath": "_content/SpotifyExtension",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],
-  "DiscoveryPatterns": [],
-  "Assets": []
+  "DiscoveryPatterns": [
+    {
+      "Name": "SpotifyExtension\\wwwroot",
+      "Source": "SpotifyExtension",
+      "ContentRoot": "C:\\Users\\Максим\\source\\repos\\SpotifyExtension\\SpotifyExtension\\wwwroot\\",
+      "BasePath": "_content/SpotifyExtension",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "C:\\Users\\Максим\\source\\repos\\SpotifyExtension\\SpotifyExtension\\wwwroot\\html\\Authorize.html",
+      "SourceId": "SpotifyExtension",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Максим\\source\\repos\\SpotifyExtension\\SpotifyExtension\\wwwroot\\",
+      "BasePath": "_content/SpotifyExtension",
+      "RelativePath": "html/Authorize.html",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\html\\Authorize.html"
+    }
+  ]
 }
