@@ -42,7 +42,14 @@ namespace SpotifyExtension.Services
             {
                 CodeChallengeMethod = "S256",
                 CodeChallenge = _authCode.challenge,
-                Scope = new[] { Scopes.PlaylistReadPrivate, Scopes.PlaylistReadCollaborative, Scopes.UserLibraryRead }
+                Scope = new[] 
+                { 
+                    Scopes.PlaylistReadPrivate,
+                    Scopes.PlaylistReadCollaborative,
+                    Scopes.UserLibraryRead,
+                    Scopes.AppRemoteControl,
+                    Scopes.Streaming
+                }
             };
 
             return loginRequest.ToUri();
