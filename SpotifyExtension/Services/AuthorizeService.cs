@@ -42,7 +42,7 @@ namespace SpotifyExtension.Services
             {
                 CodeChallengeMethod = "S256",
                 CodeChallenge = _authCode.challenge,
-                Scope = new[] { Scopes.PlaylistReadPrivate, Scopes.PlaylistReadCollaborative }
+                Scope = new[] { Scopes.PlaylistReadPrivate, Scopes.PlaylistReadCollaborative, Scopes.UserLibraryRead }
             };
 
             return loginRequest.ToUri();
@@ -63,11 +63,12 @@ namespace SpotifyExtension.Services
             }
             catch (Exception ex)
             {
+                _logger.LogError(LogInfo.NewLog(ex.Message));
+
                 var stage = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
                 if (stage == "Development")
                     throw;
 
-                _logger.LogError(LogInfo.NewLog(ex.Message));
                 return false;
             }
             return true;
@@ -88,16 +89,16 @@ namespace SpotifyExtension.Services
             }
             catch (Exception ex)
             {
+                _logger.LogError(LogInfo.NewLog(ex.Message));
+
                 var stage = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
                 if (stage == "Development")
                     throw;
 
-                _logger.LogError(LogInfo.NewLog(ex.Message));
                 return false;
             }
 
             return true;
         }
-
     }
 }

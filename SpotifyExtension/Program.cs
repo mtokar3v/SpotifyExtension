@@ -1,5 +1,7 @@
 using SpotifyExtension.DataItems.Config;
+using SpotifyExtension.Interfaces.Repository;
 using SpotifyExtension.Interfaces.Services;
+using SpotifyExtension.Repositoty;
 using SpotifyExtension.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +17,8 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
     options.CheckConsentNeeded = context => true;
     options.MinimumSameSitePolicy = SameSiteMode.None;
 });
+
+builder.Services.AddTransient<ISpotifyTracksRepository, SpotifyTracksRepository>();
 
 builder.Services.AddTransient<IAuthorizeService, AuthorizeService>();
 builder.Services.AddSingleton<ICookieService, CookieService>();
