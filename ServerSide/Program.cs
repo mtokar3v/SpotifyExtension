@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Server.IISIntegration;
 using Microsoft.IdentityModel.Tokens;
 using SpotifyExtension.DataItems.Config;
 using SpotifyExtension.DataItems.Options;
@@ -52,6 +51,14 @@ builder.Services
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = JwtAuthOptions.GetSymmetricSecurityKey()
         };
+        options.Events = new JwtBearerEvents
+        { 
+            OnMessageReceived = context =>
+            {
+                context.Token = context.Request.Cookies[JwtAuthOptions.AccessTokenCookieName];
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddAuthorization(options =>
@@ -61,6 +68,7 @@ builder.Services.AddAuthorization(options =>
     .Build();
 });
 
+builder.Services.AddCors();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -80,6 +88,7 @@ app.UseHttpsRedirection();
 
 app.UseSession();
 
+app.UseCors(builder => builder.AllowAnyOrigin());
 app.UseAuthorization();
 app.UseAuthorization();
 

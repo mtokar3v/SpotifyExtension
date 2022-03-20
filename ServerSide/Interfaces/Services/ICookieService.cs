@@ -2,7 +2,7 @@
 {
     public interface ICookieService
     {
-        public void SetRefreshToken(string token, HttpContext context);
-        public string GetRefreshToken(HttpContext context);
+        public void SetAccessToken(string token, HttpContext context);
+        public string GetAccessToken(HttpContext context);
     }
 }

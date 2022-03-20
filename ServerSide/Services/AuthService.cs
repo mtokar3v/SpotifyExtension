@@ -82,7 +82,7 @@ namespace SpotifyExtension.Services
                 });
 
                 var jwt = CreateEncodedJwt(identity);
-                _sessionService.SetAccessToken(jwt, context);
+                _cookieService.SetAccessToken(jwt, context);
 
                 return jwt;
             }

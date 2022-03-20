@@ -1,16 +1,16 @@
-﻿using SpotifyExtension.Interfaces.Services;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using SpotifyExtension.DataItems.Options;
+using SpotifyExtension.Interfaces.Services;
 
 namespace SpotifyExtension.Services
 {
     public class CookieService : ICookieService
     {
-        private const string refreshTokenCookieName = "RefreshToken"; 
+        public void SetAccessToken(string token, HttpContext context)
+            => SetCookie(JwtAuthOptions.AccessTokenCookieName, token, context);
 
-        public void SetRefreshToken(string token, HttpContext context)
-            => SetCookie(refreshTokenCookieName, token, context);
-
-        public string GetRefreshToken(HttpContext context)
-            => GetCookie(refreshTokenCookieName, context);
+        public string GetAccessToken(HttpContext context)
+            => GetCookie(JwtAuthOptions.AccessTokenCookieName, context);
 
         #region Private Methods
         private void SetCookie(string key, string value, HttpContext context, bool httpOnly = true)
