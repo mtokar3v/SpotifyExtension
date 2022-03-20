@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using SpotifyExtension.DataItems.Config;
 using SpotifyExtension.Interfaces.Services;
@@ -35,7 +36,18 @@ namespace SpotifyExtension.Controllers
         {
             if (string.IsNullOrEmpty(code)) return BadRequest();
 
-            var success = await _authorizeService.TryGetAccessAsync(nameof(GetCallback), code, HttpContext);
+            var accessToken = await _authorizeService.GetAccessTokenAsync(nameof(GetCallback), code, HttpContext);
+            if (string.IsNullOrEmpty(accessToken)) return Forbid();
+
+            return Ok(accessToken);
+        }
+
+        [HttpGet]
+        [Authorize]
+        [Route(nameof(RefreshTokens))]
+        public async Task<IActionResult> RefreshTokens()
+        {
+            var success = await _authorizeService.TryRefreshTokenAsync(HttpContext);
             if (!success) return Forbid();
 
             return Ok();

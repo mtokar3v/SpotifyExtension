@@ -1,12 +1,12 @@
 {
   "OAuth": {
-    "AuthCode": "SuperDooperSecretStringSuperDooperSecretStringSuperDooperSecretStringSuperDooperSecretString",
+    "AuthCode": "fz1OL28jya0uxY35AJKXZJnsA0mAyvTy9RWAYBrRkVTGRGGevzJ8rLQjN4NO3zEXmB8wqqHh5Wn8TvV5nWpnA",
     "Client": {
-      "Id": "060fa59139564c2c956a50ca065af511",
-      "Secret": "20ca045ae0c741bc8c5a6947d545c950"
+      "Id": null,
+      "Secret": null
     }
   },
   "Application": {
-    "Uri": "https://localhost:7168"
+    "Uri": null
   }
 }

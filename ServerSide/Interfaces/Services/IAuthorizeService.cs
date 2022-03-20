@@ -1,11 +1,19 @@
-﻿namespace SpotifyExtension.Interfaces.Services
+﻿using SpotifyAPI.Web;
+using System.Security.Claims;
+
+namespace SpotifyExtension.Interfaces.Services
 {
     public interface IAuthorizeService
     {
         Uri CreateAuthLink(string redirectMethod, string clientId);
 
-        Task<bool> TryGetAccessAsync(string redirectMethod, string code, HttpContext context);
+        Task<string?> GetAccessTokenAsync(string redirectMethod, string code, HttpContext context);
 
-        Task<bool> TryReloadTokenAsync(HttpContext context);
+        Task<bool> TryRefreshTokenAsync(HttpContext context);
+
+        string GetAccessToken(ClaimsPrincipal User);
+
+        string GetRefreshToken(ClaimsPrincipal User);
+
     }
 }

@@ -7,10 +7,17 @@ namespace SpotifyExtension.Services
         private const string accessTokenName = "AccessToken";
 
         public void SetAccessToken(string token, HttpContext context)
-            => SetValue(accessTokenName, token, context);
+        {
+            if (string.IsNullOrEmpty(token))
+                throw new Exception($"'{accessTokenName}' can not be null or empty");
 
-        public string GetAccessToken(HttpContext context)
-            => GetValue(accessTokenName, context);
+            SetValue(accessTokenName, token, context);
+        }
+
+        public string GetAccessToken(HttpContext context) => GetValue(accessTokenName, context);
+
+        public void RemoveAccessToken(HttpContext context) => RemoveValue(accessTokenName, context);
+            
 
         #region Private Methods
         private void SetValue(string key, string value, HttpContext context)
@@ -27,6 +34,12 @@ namespace SpotifyExtension.Services
                 return string.Empty;
 
             return context.Session.GetString(key)!;
+        }
+
+        public void RemoveValue(string key, HttpContext context)
+        {
+            if (context.Session.Keys.Contains(key))
+                context.Session.Remove(key);
         }
         #endregion
     }

@@ -6,3 +6,5 @@ bin/
 *.bak
 
 
+/ServerSide/app.json
+/ServerSide/SpotifyExtension.sln
