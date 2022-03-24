@@ -2,10 +2,10 @@
 {
     public interface ISessionService
     {
-        void SetAccessToken(string token, HttpContext context);
+        void SetAccessToken(string token, ISession session);
 
-        string GetAccessToken(HttpContext context);
+        string GetAccessToken(ISession session);
 
-        void RemoveAccessToken(HttpContext context);
+        void RemoveAccessToken(ISession session);
     }
 }

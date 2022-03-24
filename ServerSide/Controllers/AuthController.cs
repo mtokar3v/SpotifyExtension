@@ -2,13 +2,14 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using SpotifyExtension.DataItems.Config;
+using SpotifyExtension.DataItems.Models;
 using SpotifyExtension.Interfaces.Services;
 
 namespace SpotifyExtension.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController : ControllerBase
+    public class AuthController : ExtendedControllerBase
     {
         OAuthOptions _authOptions;
         IAuthorizeService _authorizeService;
@@ -21,11 +22,13 @@ namespace SpotifyExtension.Controllers
             _authorizeService = authorizeService;
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route(nameof(GetAuthLink))]
-        public IActionResult GetAuthLink()
+        public IActionResult GetAuthLink([FromForm] AuthRequestM m)
         {
-            var authLink = _authorizeService.CreateAuthLink(nameof(GetCallback), _authOptions.Client.Id);
+            if (!ModelState.IsValid) return BadRequest();
+
+            var authLink = _authorizeService.CreateAuthLink(nameof(GetCallback), m.ClientId);
             return Ok(authLink);
         
         }
@@ -36,10 +39,11 @@ namespace SpotifyExtension.Controllers
         {
             if (string.IsNullOrEmpty(code)) return BadRequest();
 
-            var accessToken = await _authorizeService.GetAccessTokenAsync(nameof(GetCallback), code, HttpContext);
+            var accessToken = await _authorizeService.GetAccessTokenAsync(nameof(GetCallback), code);
             if (string.IsNullOrEmpty(accessToken)) return Forbid();
 
-            return Ok(accessToken);
+            SetAccessToken(accessToken);
+            return Ok();
         }
 
         [HttpGet]
@@ -47,9 +51,12 @@ namespace SpotifyExtension.Controllers
         [Route(nameof(RefreshTokens))]
         public async Task<IActionResult> RefreshTokens()
         {
-            var success = await _authorizeService.TryRefreshTokenAsync(HttpContext);
-            if (!success) return Forbid();
-
+            var success = await _authorizeService.RefreshSpotifyTokensAsync(User);
+            if (!success) 
+            {
+                Logout();
+                return Forbid();
+            }
             return Ok();
         }
     }

@@ -31,11 +31,11 @@ namespace SpotifyExtension.Controllers
         [Route(nameof(GetUserSavedTracks))]
         public async Task<IActionResult> GetUserSavedTracks()
         {
-            var access = _authorizeService.GetAccessToken(User);
+            var access = _authorizeService.GetSpotifyAccessToken(User);
+            if (string.IsNullOrEmpty(access)) return Forbid();
 
             var tracks = await _tracksRepository.GetUserSavedFullTracks(access);
-
-            return Ok(tracks.Select(t=>t.Name));
+            return Ok(tracks?.Select(t=>t.Name));
         }
 
 
@@ -43,22 +43,11 @@ namespace SpotifyExtension.Controllers
         [Route(nameof(GetPlaylistTracks))]
         public async Task<IActionResult> GetPlaylistTracks(string playlistId)
         {
-            var access = _sessionService.GetAccessToken(HttpContext);
-
-            if(string.IsNullOrEmpty(access))
-            {
-                var success = await _authorizeService.TryRefreshTokenAsync(HttpContext);
-                if (!success) return Forbid();
-                await GetPlaylistTracks(playlistId);
-            }
+            var access = _authorizeService.GetSpotifyAccessToken(User);
+            if (string.IsNullOrEmpty(access)) return Forbid();
 
             var tracks = await _tracksRepository.GetPlaylistFullTracks(access, playlistId);
-
-            return Ok(tracks.Select(t=>t.Name));
+            return Ok(tracks?.Select(t=>t.Name));
         }
-
-
-
-
     }
 }

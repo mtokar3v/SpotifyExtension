@@ -7,13 +7,12 @@ namespace SpotifyExtension.Interfaces.Services
     {
         Uri CreateAuthLink(string redirectMethod, string clientId);
 
-        Task<string?> GetAccessTokenAsync(string redirectMethod, string code, HttpContext context);
+        Task<string?> GetAccessTokenAsync(string redirectMethod, string code);
 
-        Task<bool> TryRefreshTokenAsync(HttpContext context);
+        Task<bool> RefreshSpotifyTokensAsync(ClaimsPrincipal user);
 
-        string GetAccessToken(ClaimsPrincipal User);
+        string? GetSpotifyAccessToken(ClaimsPrincipal User);
 
-        string GetRefreshToken(ClaimsPrincipal User);
-
+        string? GetSpotifyRefreshToken(ClaimsPrincipal User);
     }
 }

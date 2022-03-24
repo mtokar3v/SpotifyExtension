@@ -6,40 +6,40 @@ namespace SpotifyExtension.Services
     {
         private const string accessTokenName = "AccessToken";
 
-        public void SetAccessToken(string token, HttpContext context)
+        public void SetAccessToken(string token, ISession session)
         {
             if (string.IsNullOrEmpty(token))
                 throw new Exception($"'{accessTokenName}' can not be null or empty");
 
-            SetValue(accessTokenName, token, context);
+            SetValue(accessTokenName, token, session);
         }
 
-        public string GetAccessToken(HttpContext context) => GetValue(accessTokenName, context);
+        public string GetAccessToken(ISession session) => GetValue(accessTokenName, session);
 
-        public void RemoveAccessToken(HttpContext context) => RemoveValue(accessTokenName, context);
+        public void RemoveAccessToken(ISession session) => RemoveValue(accessTokenName, session);
             
 
         #region Private Methods
-        private void SetValue(string key, string value, HttpContext context)
+        private void SetValue(string key, string value, ISession session)
         {
-            if (context.Session.Keys.Contains(key))
-                context.Session.Remove(key);
+            if (session.Keys.Contains(key))
+                session.Remove(key);
 
-            context.Session.SetString(key, value);
+            session.SetString(key, value);
         }
 
-        private string GetValue(string key, HttpContext context)
+        private string GetValue(string key, ISession session)
         {
-            if (!context.Session.Keys.Contains(key))
+            if (!session.Keys.Contains(key))
                 return string.Empty;
 
-            return context.Session.GetString(key)!;
+            return session.GetString(key)!;
         }
 
-        public void RemoveValue(string key, HttpContext context)
+        public void RemoveValue(string key, ISession session)
         {
-            if (context.Session.Keys.Contains(key))
-                context.Session.Remove(key);
+            if (session.Keys.Contains(key))
+                session.Remove(key);
         }
         #endregion
     }

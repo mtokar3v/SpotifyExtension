@@ -7,10 +7,14 @@ namespace SpotifyExtension.Services
     public class PlayerService : IPlayerService
     {
         private readonly ILogger<AuthService> _logger;
+        private readonly IAuthorizeService _authorizeService;
 
-        public PlayerService(ILogger<AuthService> logger)
+        public PlayerService(
+            ILogger<AuthService> logger,
+            IAuthorizeService authorizeService)
         {
             _logger = logger;
+            _authorizeService = authorizeService;
         }
 
         public async Task<FullTrack?> GetPlayingTrack(string access)
@@ -25,13 +29,15 @@ namespace SpotifyExtension.Services
             }
             catch(APIUnauthorizedException ex)
             {
-                _logger.LogInformation(LogInfo.NewLog(ex.Message));
-                throw;
+                _logger.LogInformation(LogInfo.NewLog(ex.Message, ex.StackTrace));
             }
             catch(Exception ex)
             {
                 _logger.LogWarning(LogInfo.NewLog(ex.Message));
-                throw;
+
+                var stage = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+                if (stage == "Development")
+                    throw;
             }
 
             return playingTrackInfo?.Item as FullTrack;

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SpotifyAPI.Web;
 using SpotifyExtension.Interfaces.Repository;
 using SpotifyExtension.Interfaces.Services;
@@ -7,6 +8,7 @@ namespace SpotifyExtension.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class PlayerController : ControllerBase
     {
         private readonly ICookieService _cookieService;
@@ -33,16 +35,10 @@ namespace SpotifyExtension.Controllers
         [Route(nameof(Skip))]
         public async Task<IActionResult> Skip()
         {
-            var access = _sessionService.GetAccessToken(HttpContext);
+            var accessToken = _authorizeService.GetSpotifyAccessToken(User);
+            if (string.IsNullOrEmpty(accessToken)) return Forbid();
 
-            if (string.IsNullOrEmpty(access))
-            {
-                var success = await _authorizeService.TryRefreshTokenAsync(HttpContext);
-                if (!success) return Forbid();
-                await Skip();
-            }
-
-            var client = new SpotifyClient(access);
+            var client = new SpotifyClient(accessToken);
             await client.Player.SkipNext();
 
             return Ok();
@@ -52,25 +48,14 @@ namespace SpotifyExtension.Controllers
         [Route(nameof(GetTrack))]
         public async Task<IActionResult> GetTrack()
         {
-            var access = _sessionService.GetAccessToken(HttpContext);
+            var accessToken = _authorizeService.GetSpotifyAccessToken(User);
+            if (string.IsNullOrEmpty(accessToken)) return Forbid();
 
-            if (string.IsNullOrEmpty(access))
-            {
-                var success = await _authorizeService.TryRefreshTokenAsync(HttpContext);
-                if (!success) return Forbid();
-                await GetTrack();
-            }
+  
+            var track = await _playerService.GetPlayingTrack(accessToken);
 
-            try
-            {
-                var track = await _playerService.GetPlayingTrack(access);
-            }
-            catch(APIUnauthorizedException ex)
-            {
-                return Forbid(ex.Message);
-            }
 
-            return Ok();
+            return Ok(track);
         }
     }
 }

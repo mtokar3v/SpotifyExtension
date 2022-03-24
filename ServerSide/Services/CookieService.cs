@@ -12,6 +12,9 @@ namespace SpotifyExtension.Services
         public string GetAccessToken(HttpContext context)
             => GetCookie(JwtAuthOptions.AccessTokenCookieName, context);
 
+        public void RemoveSEAccessToken(HttpContext context)
+            => RemoveCookie(JwtAuthOptions.AccessTokenCookieName, context);
+
         #region Private Methods
         private void SetCookie(string key, string value, HttpContext context, bool httpOnly = true)
         {
@@ -30,6 +33,12 @@ namespace SpotifyExtension.Services
                 return string.Empty;
 
             return context.Request.Cookies[key]!;
+        }
+
+        private void RemoveCookie(string key, HttpContext context)
+        {
+            if (context.Request.Cookies.ContainsKey(key))
+                context.Response.Cookies.Delete(key);
         }
         #endregion
     }

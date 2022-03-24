@@ -40,9 +40,9 @@ namespace SpotifyExtension.Services
             _cookieService = cookieService;
         }
 
-        public string GetAccessToken(ClaimsPrincipal User) => User.Claims.First(c => c.Type == CustomClaimTypes.AccessToken).Value;
+        public string? GetSpotifyAccessToken(ClaimsPrincipal User) => User.Claims.FirstOrDefault(c => c.Type == CustomClaimTypes.AccessToken)?.Value;
 
-        public string GetRefreshToken(ClaimsPrincipal User) => User.Claims.First(c => c.Type == CustomClaimTypes.RefreshToken).Value;
+        public string? GetSpotifyRefreshToken(ClaimsPrincipal User) => User.Claims.FirstOrDefault(c => c.Type == CustomClaimTypes.RefreshToken)?.Value;
 
         public Uri CreateAuthLink(string redirectMethod, string clientId)
         {
@@ -66,14 +66,13 @@ namespace SpotifyExtension.Services
             return loginRequest.ToUri();
         }
 
-        public async Task<string?> GetAccessTokenAsync(string redirectMethod, string code, HttpContext context)
+        public async Task<string?> GetAccessTokenAsync(string redirectMethod, string code)
         {
             var redirectUri = new Uri($"{_applicationOptions.Uri}/api/auth/{redirectMethod}");
 
             try
             {
-                var responce = await new OAuthClient().RequestToken(
-                        new PKCETokenRequest(_oAuthOptions.Client.Id, code, redirectUri, _authCode.verifier));
+                var responce = await new OAuthClient().RequestToken(new PKCETokenRequest(_oAuthOptions.Client.Id, code, redirectUri, _authCode.verifier));
 
                 var identity = CreateIdentity(new IdentityM 
                 { 
@@ -81,10 +80,7 @@ namespace SpotifyExtension.Services
                     AccessToken = responce.AccessToken
                 });
 
-                var jwt = CreateEncodedJwt(identity);
-                _cookieService.SetAccessToken(jwt, context);
-
-                return jwt;
+                return CreateEncodedJwt(identity);
             }
             catch (Exception ex)
             {
@@ -98,24 +94,20 @@ namespace SpotifyExtension.Services
             }
         }
 
-        public async Task<bool> TryRefreshTokenAsync(HttpContext context)
+        public async Task<bool> RefreshSpotifyTokensAsync(ClaimsPrincipal user)
         {
-            var user = context.User;
             try
             {
-                var refreshToken = user.Claims.First(c => c.Type == CustomClaimTypes.RefreshToken)?.Value;
+                var refreshToken = user.Claims.FirstOrDefault(c => c.Type == CustomClaimTypes.RefreshToken)?.Value;
+
+                if (string.IsNullOrEmpty(refreshToken)) throw new NullReferenceException("Refresh Token is null or empty");
 
                 var responce = await new OAuthClient().RequestToken(new PKCETokenRefreshRequest(_oAuthOptions.Client.Id, refreshToken!));
+                var identity = user.Identities.FirstOrDefault(i => i.Claims.Any(c => c.Issuer == JwtAuthOptions.Issuer));
 
-                // The problems arise in that the Identities fields have null values,
-                // which makes it impossible to determine the required Identity.
-                // While there is only one Identity, there are no problems,
-                // if there are more of them, then problems may arise
-
-                var identity = user.Identities.First(i => i.Claims.Any(c=>c.Issuer == JwtAuthOptions.Issuer));
-
+                if (identity == null) throw new NullReferenceException($"User {user.Identity?.Name} doesn't has a identity");
+                
                 RemoveClaims(new List<string> { CustomClaimTypes.RefreshToken, CustomClaimTypes.AccessToken }, identity, user);
-
                 identity.AddClaims(new List<Claim>
                 {
                     new Claim(CustomClaimTypes.RefreshToken, responce.RefreshToken),
@@ -127,14 +119,13 @@ namespace SpotifyExtension.Services
             catch (APIException ex)
             {
                 _logger.LogError(LogInfo.NewLog(ex.Message));
-                Logout(context);
-                return false;
-            }
-        }
 
-        void Logout(HttpContext context)
-        {
-            _sessionService.RemoveAccessToken(context);
+                var stage = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+                if (stage == "Development")
+                    throw;
+                return false;
+
+            }
         }
 
         #region Private methods

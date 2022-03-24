@@ -5,18 +5,15 @@ using SpotifyExtension.DataItems.Config;
 using SpotifyExtension.DataItems.Options;
 using SpotifyExtension.Interfaces.Repository;
 using SpotifyExtension.Interfaces.Services;
+using SpotifyExtension.Repository;
 using SpotifyExtension.Repositoty;
 using SpotifyExtension.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration
-    .AddJsonFile("app.json");
-
-if (!string.IsNullOrEmpty(builder.Environment.EnvironmentName))
-{
-    builder.Configuration.AddJsonFile($"app.{builder.Environment.EnvironmentName}.json", optional: true);
-}
+    .AddJsonFile("app.json")
+    .AddJsonFile($"app.{builder.Environment.EnvironmentName}.json", optional: true);
 
 builder.Services.Configure<OAuthOptions>(builder.Configuration.GetSection("OAuth"));
 builder.Services.Configure<ApplicationOptions>(builder.Configuration.GetSection("Application"));
@@ -30,8 +27,9 @@ builder.Services.AddTransient<ISpotifyTracksRepository, SpotifyTracksRepository>
 
 builder.Services.AddTransient<IPlayerService, PlayerService>();
 builder.Services.AddTransient<IAuthorizeService, AuthService>();
-builder.Services.AddSingleton<ICookieService, CookieService>();
-builder.Services.AddSingleton<ISessionService, SessionService>();
+builder.Services.AddTransient<IUserStatisticsRepository, UserStatisticsRepository>();
+builder.Services.AddTransient<ICookieService, CookieService>();
+builder.Services.AddTransient<ISessionService, SessionService>();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
