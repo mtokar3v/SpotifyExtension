@@ -1,4 +1,4 @@
-﻿{
+{
   "$schema": "https://json.schemastore.org/launchsettings.json",
   "iisSettings": {
     "windowsAuthentication": false,
@@ -11,13 +11,14 @@
   "profiles": {
     "SpotifyExtension": {
       "commandName": "Project",
-      "dotnetRunMessages": true,
+      "workingDirectory": "C:\\Users\\Максим\\source\\repos\\SpotifyExtension\\SpotifyExtension",
       "launchBrowser": true,
       "launchUrl": "swagger",
-      "applicationUrl": "https://localhost:7168;http://localhost:5168",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+      },
+      "applicationUrl": "https://localhost:7168;http://localhost:5168",
+      "dotnetRunMessages": true
     },
     "IIS Express": {
       "commandName": "IISExpress",

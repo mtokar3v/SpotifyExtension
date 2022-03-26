@@ -22,15 +22,14 @@ namespace SpotifyExtension.Controllers
             _authorizeService = authorizeService;
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route(nameof(GetAuthLink))]
-        public IActionResult GetAuthLink([FromForm] AuthRequestM m)
+        public IActionResult GetAuthLink([FromQuery] AuthRequestM m)
         {
             if (!ModelState.IsValid) return BadRequest();
 
             var authLink = _authorizeService.CreateAuthLink(nameof(GetCallback), m.ClientId);
             return Ok(authLink);
-        
         }
 
         [HttpGet]

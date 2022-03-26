@@ -85,11 +85,6 @@ namespace SpotifyExtension.Services
             catch (Exception ex)
             {
                 _logger.LogError(LogInfo.NewLog(ex.Message));
-
-                var stage = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-                if (stage == "Development")
-                    throw;
-
                 return null;
             }
         }

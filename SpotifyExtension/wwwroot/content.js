@@ -1,9 +1,17 @@
 var uri = "";
+var accessTokenName = "AccessToken";
 
-setInterval(checkUri , 2000);
+auth();
+
+//setInterval(checkUri , 2000);
 
 function fillUrl(path){
-	return `https://localhost:7168${path}`
+	return "https://localhost:7168" + path;
+}
+
+async function auth(){
+	var responce = await fetch('https://localhost:7168/api/Tracks/GetUserSavedTracks');
+	console.log(responce);
 }
 
 async function checkUri(){
@@ -23,7 +31,19 @@ async function checkUri(){
 	var pathToGetSavedTracks = fillUrl(`/api/Tracks/GetUserSavedTracks`);
 	console.log(pathToGetSavedTracks);
 	
-	var responce = await fetch(pathToGetPlaylistTracks);
+	const accessToken = sessionStorage.getItem(accessTokenName);
+	
+	console.log(sessionStorage);
+	console.log(localStorage);
+	
+	var responce = await fetch(pathToGetPlaylistTracks,{
+		method: 'GET',
+		headers:{
+			"Accept": "application/json",
+			"Authorization": "Bearer " + token
+		}
+	});
+	
 	if (response.ok) {
 		let json = await response.json();
 	} else {
