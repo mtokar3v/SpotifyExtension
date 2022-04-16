@@ -8,3 +8,5 @@ bin/
 
 /ServerSide/app.json
 /ServerSide/SpotifyExtension.sln
+
+bootstrap/
